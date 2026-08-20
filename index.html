@@ -3030,6 +3030,8 @@ function changePoints(
       (item.points||0)+amount
     );
 
+  updateAchievements();
+  
   transaction(
     (amount>=0 ? "+" : "") +
     amount +
@@ -4464,7 +4466,82 @@ function updateAchievements(){
 
 }
 
+/* =========================================================
+   RENDER PROFILE ACHIEVEMENTS
+   ========================================================= */
 
+function renderProfileAchievements(item){
+
+  const grid =
+    $("profileAchievementGrid");
+
+  if(!grid)
+    return;
+
+  ensureAchievements(item);
+
+  grid.innerHTML="";
+
+
+  achievementDefinitions.forEach(
+    achievement => {
+
+      const unlocked =
+        !!item.achievements[
+          achievement.id
+        ];
+
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "profile-achievement "+
+        (
+          unlocked
+            ? "unlocked"
+            : "locked"
+        );
+
+
+      card.innerHTML=`
+
+        <div class="profile-achievement-icon">
+
+          ${achievement.icon}
+
+        </div>
+
+        <div class="profile-achievement-name">
+
+          ${achievement.name}
+
+        </div>
+
+        <div class="profile-achievement-lock">
+
+          ${
+            unlocked
+              ? "✓ Unlocked"
+              : "🔒 Locked"
+          }
+
+        </div>
+
+      `;
+
+
+      grid.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+  
 /* =========================================================
    AWARD SPECIAL COLOSSEUM ACHIEVEMENT
    ========================================================= */
