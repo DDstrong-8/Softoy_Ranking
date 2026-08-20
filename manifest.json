@@ -1,0 +1,11 @@
+{
+  "name": "Softoy Ranking",
+  "short_name": "Softoy Ranking",
+  "description": "Rank your Softoys, track achievements and enter the Colosseum.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#08111f",
+  "theme_color": "#0b1020",
+  "orientation": "any",
+  "icons": []
+}
