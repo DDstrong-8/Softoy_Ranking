@@ -4085,7 +4085,7 @@ function renderWeekly(){
 }
 
 
-a/* =========================================================
+/* =========================================================
    INDIVIDUAL SOFTOY ACHIEVEMENTS
    ========================================================= */
 
@@ -4224,11 +4224,8 @@ function ensureAchievements(item){
   if(!item)
     return;
 
-  if(!item.achievements){
-
+  if(!item.achievements)
     item.achievements={};
-
-  }
 
 }
 
@@ -4245,9 +4242,7 @@ function achievementUnlocked(
   if(!item)
     return false;
 
-
   ensureAchievements(item);
-
 
   const points =
     item.points||0;
@@ -4420,6 +4415,9 @@ function achievementUnlocked(
 
 function updateAchievements(){
 
+  let changed=false;
+
+
   state.items.forEach(
     item => {
 
@@ -4430,9 +4428,8 @@ function updateAchievements(){
         achievement => {
 
           /*
-           * These achievements are awarded
-           * permanently once their condition
-           * has been reached.
+           * These are handled by their
+           * own special systems.
            */
 
           if(
@@ -4445,7 +4442,20 @@ function updateAchievements(){
           }
 
 
+          /*
+           * IMPORTANT:
+           *
+           * Achievements are permanent.
+           *
+           * Once true, they stay true even
+           * if the Softoy later loses points
+           * or changes rank.
+           */
+
           if(
+            !item.achievements[
+              achievement.id
+            ] &&
             achievementUnlocked(
               item,
               achievement
@@ -4456,6 +4466,8 @@ function updateAchievements(){
               achievement.id
             ]=true;
 
+            changed=true;
+
           }
 
         }
@@ -4464,7 +4476,12 @@ function updateAchievements(){
     }
   );
 
+
+  if(changed)
+    save();
+
 }
+
 
 /* =========================================================
    RENDER PROFILE ACHIEVEMENTS
@@ -4496,6 +4513,7 @@ function renderProfileAchievements(item){
         document.createElement(
           "div"
         );
+
 
       card.className =
         "profile-achievement "+
@@ -4541,7 +4559,8 @@ function renderProfileAchievements(item){
   );
 
 }
-  
+
+
 /* =========================================================
    AWARD SPECIAL COLOSSEUM ACHIEVEMENT
    ========================================================= */
@@ -4570,8 +4589,15 @@ function awardUnexpectedAchievement(
     (loser.colosseumStreak||0)>=5
   ){
 
-    winner.achievements
-      .unexpected=true;
+    if(
+      !winner.achievements.unexpected
+    ){
+
+      winner.achievements.unexpected=true;
+
+      save();
+
+    }
 
   }
 
@@ -4595,12 +4621,6 @@ function awardWeeklyImprovement(){
 
   state.items.forEach(
     item => {
-
-      /*
-       * This value will be replaced
-       * by the proper weekly point
-       * tracking system in a later step.
-       */
 
       const improvement =
         item.weeklyPointsGained||0;
@@ -4633,10 +4653,179 @@ function awardWeeklyImprovement(){
     );
 
 
-    best.item.achievements
-      .throneIsMine=true;
+    if(
+      !best.item.achievements
+        .throneIsMine
+    ){
+
+      best.item.achievements
+        .throneIsMine=true;
+
+      save();
+
+    }
 
   }
+
+}
+
+
+/* =========================================================
+   ACHIEVEMENT DETAILS
+   ========================================================= */
+
+function openAchievementDetails(
+  achievement
+){
+
+  if(!achievement)
+    return;
+
+
+  updateAchievements();
+
+
+  const title =
+    $("achievementDetailsTitle");
+
+  const icon =
+    $("achievementDetailsIcon");
+
+  const description =
+    $("achievementDetailsDescription");
+
+  const unlockedList =
+    $("achievementDetailsUnlocked");
+
+
+  if(
+    !title ||
+    !icon ||
+    !description ||
+    !unlockedList
+  ){
+
+    return;
+
+  }
+
+
+  const unlockedItems =
+    state.items.filter(
+      item => {
+
+        ensureAchievements(
+          item
+        );
+
+        return !!item.achievements[
+          achievement.id
+        ];
+
+      }
+    );
+
+
+  title.textContent =
+    achievement.name;
+
+
+  icon.textContent =
+    achievement.icon;
+
+
+  description.textContent =
+    achievement.description;
+
+
+  unlockedList.innerHTML="";
+
+
+  if(
+    !unlockedItems.length
+  ){
+
+    const empty =
+      document.createElement(
+        "div"
+      );
+
+    empty.className=
+      "archive-row";
+
+    empty.textContent=
+      "🔒 No Softoys have unlocked this achievement yet.";
+
+    unlockedList.appendChild(
+      empty
+    );
+
+  }else{
+
+    unlockedItems.forEach(
+      item => {
+
+        const row =
+          document.createElement(
+            "div"
+          );
+
+
+        row.className=
+          "archive-row";
+
+
+        row.style.cursor=
+          "pointer";
+
+
+        row.innerHTML=`
+
+          🏆
+
+          <strong>
+            ${escapeHTML(item.name)}
+          </strong>
+
+          <br>
+
+          <small>
+            ${item.points||0} points
+          </small>
+
+        `;
+
+
+        row.addEventListener(
+          "click",
+          () => {
+
+            $("achievementDetailsModal")
+              .classList.remove(
+                "show"
+              );
+
+
+            openProfile(item);
+
+          }
+        );
+
+
+        unlockedList.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+
+  $("achievementDetailsModal")
+    .classList.add(
+      "show"
+    );
 
 }
 
@@ -4652,6 +4841,11 @@ function renderAchievements(){
 
   const list =
     $("achievementList");
+
+
+  if(!list)
+    return;
+
 
   list.innerHTML="";
 
@@ -4702,6 +4896,7 @@ function renderAchievements(){
 
         </div>
 
+
         <div class="achievement-content">
 
           <div class="achievement-title">
@@ -4710,13 +4905,25 @@ function renderAchievements(){
 
           </div>
 
+
           <div class="achievement-description">
 
             ${achievement.description}
 
           </div>
 
-          <div class="achievement-status">
+
+          <button
+            type="button"
+            class="achievement-status"
+            style="
+              border:0;
+              background:transparent;
+              padding:0;
+              text-align:left;
+              cursor:pointer;
+            "
+          >
 
             ${
               unlocked
@@ -4731,21 +4938,56 @@ function renderAchievements(){
                 : "🔒 Not unlocked yet"
             }
 
-          </div>
+          </button>
 
         </div>
+
 
         ${
           unlocked
             ? `
               <div class="achievement-check">
+
                 ✓
+
               </div>
             `
             : ""
         }
 
       `;
+
+
+      const statusButton =
+        box.querySelector(
+          ".achievement-status"
+        );
+
+
+      if(statusButton){
+
+        statusButton.disabled=
+          !unlocked;
+
+
+        if(unlocked){
+
+          statusButton.addEventListener(
+            "click",
+            event => {
+
+              event.stopPropagation();
+
+              openAchievementDetails(
+                achievement
+              );
+
+            }
+          );
+
+        }
+
+      }
 
 
       list.appendChild(
