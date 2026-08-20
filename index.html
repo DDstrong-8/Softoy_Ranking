@@ -2317,6 +2317,32 @@ Win Streak
 
 </div>
 
+
+<!-- =====================================================
+     PROFILE ACHIEVEMENTS
+     ===================================================== -->
+
+<div class="profile-achievements">
+
+  <div class="profile-achievements-title">
+    <span>🏆 Achievements</span>
+  </div>
+
+  <div
+    id="profileAchievementGrid"
+    class="profile-achievement-grid"
+  ></div>
+
+  <button
+    id="profileAchievementGallery"
+    class="achievement-gallery-button"
+  >
+    🎖️ See All Achievements
+  </button>
+
+</div>
+
+
 </div>
 
 </div>
@@ -3559,12 +3585,13 @@ function openProfile(item){
 
 
   $("profileModal")
-    .classList.add(
-      "show"
-    );
+  .classList.add(
+    "show"
+  );
+
+renderProfileAchievements(item);
 
 }
-
 
 function getProfileItem(){
 
