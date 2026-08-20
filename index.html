@@ -4057,26 +4057,36 @@ function renderWeekly(){
 
 
 /* =========================================================
-   ACHIEVEMENTS
+   INDIVIDUAL SOFTOY ACHIEVEMENTS
    ========================================================= */
 
-const achievementDefinitions=[
+const achievementDefinitions = [
 
   {
-    id:"undefeated",
-    icon:"🏟️",
-    name:"Undefeated",
+    id:"first50",
+    icon:"🪙",
+    name:"First 50 Points",
     description:
-      "Win 5 Colosseum battles in a row.",
-    goal:5,
-    value:() =>
-      Math.max(
-        0,
-        ...state.items.map(
-          x =>
-            x.colosseumStreak||0
-        )
-      )
+      "Get 50 points for the first time.",
+    goal:50
+  },
+
+  {
+    id:"oneHundred",
+    icon:"💯",
+    name:"100!",
+    description:
+      "Get 100 points for the first time.",
+    goal:100
+  },
+
+  {
+    id:"fiveHundred",
+    icon:"🏅",
+    name:"500!",
+    description:
+      "Get 500 points for the first time.",
+    goal:500
   },
 
   {
@@ -4084,57 +4094,459 @@ const achievementDefinitions=[
     icon:"👑",
     name:"Four-Digit King",
     description:
-      "Reach 1,000 points.",
-    goal:1000,
-    value:() =>
-      Math.max(
-        0,
-        ...state.items.map(
-          x =>
-            x.points||0
-        )
-      )
+      "Get 1,000 points for the first time.",
+    goal:1000
   },
 
   {
-    id:"firstWin",
+    id:"bronzeWarrior",
+    icon:"🥉",
+    name:"Bronze Warrior",
+    description:
+      "Reach Bronze rank for the first time with at least 10 points.",
+    goal:10
+  },
+
+  {
+    id:"silverMastermind",
+    icon:"🥈",
+    name:"Silver Mastermind",
+    description:
+      "Reach Silver rank for the first time with at least 25 points.",
+    goal:25
+  },
+
+  {
+    id:"goldenLegend",
+    icon:"🥇",
+    name:"Golden Legend",
+    description:
+      "Reach Gold rank for the first time with at least 40 points.",
+    goal:40
+  },
+
+  {
+    id:"rulersVillage",
+    icon:"👑",
+    name:"Rulers of the Softoy Village",
+    description:
+      "Reach Platinum rank for the first time with at least 50 points.",
+    goal:50
+  },
+
+  {
+    id:"chosenOne",
     icon:"🏆",
-    name:"First Victory",
+    name:"The Chosen One",
     description:
-      "Win your first Colosseum battle.",
-    goal:1,
-    value:() =>
-      Math.max(
-        0,
-        ...state.items.map(
-          x =>
-            x.colosseumWins||0
-        )
-      )
+      "Reach 1st place for the first time with at least 50 points.",
+    goal:50
   },
 
   {
-    id:"tenWins",
-    icon:"🔥",
-    name:"Colosseum Veteran",
+    id:"throneIsMine",
+    icon:"📈",
+    name:"The throne is mine!",
     description:
-      "Win 10 Colosseum battles.",
-    goal:10,
-    value:() =>
-      state.items.reduce(
-        (sum,x) =>
-          sum+
-          (x.colosseumWins||0),
-        0
-      )
+      "Be the best improving Softoy in the week.",
+    goal:1
+  },
+
+  /* =====================================================
+     COLOSSEUM ACHIEVEMENTS
+     ===================================================== */
+
+  {
+    id:"unstoppable",
+    icon:"🔥",
+    name:"Unstoppable",
+    description:
+      "Get five Colosseum wins in a row.",
+    goal:5
+  },
+
+  {
+    id:"homeGround",
+    icon:"🏟️",
+    name:"This is my home ground",
+    description:
+      "Get 20 Colosseum wins during that Softoy's career.",
+    goal:20
+  },
+
+  {
+    id:"unexpected",
+    icon:"⚡",
+    name:"Expect the Unexpected",
+    description:
+      "Break a streak of 5 or more from another Softoy.",
+    goal:1
   }
 
 ];
 
 
+/* =========================================================
+   ENSURE ACHIEVEMENT STORAGE
+   ========================================================= */
+
+function ensureAchievements(item){
+
+  if(!item)
+    return;
+
+  if(!item.achievements){
+
+    item.achievements={};
+
+  }
+
+}
+
+
+/* =========================================================
+   CHECK INDIVIDUAL ACHIEVEMENT
+   ========================================================= */
+
+function achievementUnlocked(
+  item,
+  achievement
+){
+
+  if(!item)
+    return false;
+
+
+  ensureAchievements(item);
+
+
+  const points =
+    item.points||0;
+
+
+  /* -----------------------------------------------
+     POINT ACHIEVEMENTS
+     ----------------------------------------------- */
+
+  if(
+    achievement.id==="first50"
+  ){
+
+    return points>=50;
+
+  }
+
+
+  if(
+    achievement.id==="oneHundred"
+  ){
+
+    return points>=100;
+
+  }
+
+
+  if(
+    achievement.id==="fiveHundred"
+  ){
+
+    return points>=500;
+
+  }
+
+
+  if(
+    achievement.id==="fourDigit"
+  ){
+
+    return points>=1000;
+
+  }
+
+
+  /* -----------------------------------------------
+     RANK ACHIEVEMENTS
+     ----------------------------------------------- */
+
+  if(
+    achievement.id==="bronzeWarrior"
+  ){
+
+    return (
+      points>=10 &&
+      rankOf(item)>=26 &&
+      rankOf(item)<=50
+    );
+
+  }
+
+
+  if(
+    achievement.id==="silverMastermind"
+  ){
+
+    return (
+      points>=25 &&
+      rankOf(item)>=11 &&
+      rankOf(item)<=25
+    );
+
+  }
+
+
+  if(
+    achievement.id==="goldenLegend"
+  ){
+
+    return (
+      points>=40 &&
+      rankOf(item)>=4 &&
+      rankOf(item)<=10
+    );
+
+  }
+
+
+  if(
+    achievement.id==="rulersVillage"
+  ){
+
+    return (
+      points>=50 &&
+      rankOf(item)>=2 &&
+      rankOf(item)<=3
+    );
+
+  }
+
+
+  if(
+    achievement.id==="chosenOne"
+  ){
+
+    return (
+      points>=50 &&
+      rankOf(item)===1
+    );
+
+  }
+
+
+  /* -----------------------------------------------
+     WEEKLY ACHIEVEMENT
+     ----------------------------------------------- */
+
+  if(
+    achievement.id==="throneIsMine"
+  ){
+
+    return !!item.achievements.throneIsMine;
+
+  }
+
+
+  /* -----------------------------------------------
+     COLOSSEUM ACHIEVEMENTS
+     ----------------------------------------------- */
+
+  if(
+    achievement.id==="unstoppable"
+  ){
+
+    return (
+      item.colosseumStreak||0
+    )>=5;
+
+  }
+
+
+  if(
+    achievement.id==="homeGround"
+  ){
+
+    return (
+      item.colosseumWins||0
+    )>=20;
+
+  }
+
+
+  if(
+    achievement.id==="unexpected"
+  ){
+
+    return !!item.achievements.unexpected;
+
+  }
+
+
+  return false;
+
+}
+
+
+/* =========================================================
+   UPDATE ACHIEVEMENTS
+   ========================================================= */
+
+function updateAchievements(){
+
+  state.items.forEach(
+    item => {
+
+      ensureAchievements(item);
+
+
+      achievementDefinitions.forEach(
+        achievement => {
+
+          /*
+           * These achievements are awarded
+           * permanently once their condition
+           * has been reached.
+           */
+
+          if(
+            achievement.id==="throneIsMine" ||
+            achievement.id==="unexpected"
+          ){
+
+            return;
+
+          }
+
+
+          if(
+            achievementUnlocked(
+              item,
+              achievement
+            )
+          ){
+
+            item.achievements[
+              achievement.id
+            ]=true;
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   AWARD SPECIAL COLOSSEUM ACHIEVEMENT
+   ========================================================= */
+
+function awardUnexpectedAchievement(
+  winner,
+  loser
+){
+
+  if(!winner || !loser)
+    return;
+
+
+  ensureAchievements(
+    winner
+  );
+
+
+  /*
+   * If the loser had a streak of
+   * five or more before losing,
+   * the winner breaks that streak.
+   */
+
+  if(
+    (loser.colosseumStreak||0)>=5
+  ){
+
+    winner.achievements
+      .unexpected=true;
+
+  }
+
+}
+
+
+/* =========================================================
+   WEEKLY IMPROVEMENT ACHIEVEMENT
+   ========================================================= */
+
+function awardWeeklyImprovement(){
+
+  if(
+    !state.items.length
+  )
+    return;
+
+
+  let best=null;
+
+
+  state.items.forEach(
+    item => {
+
+      /*
+       * This value will be replaced
+       * by the proper weekly point
+       * tracking system in a later step.
+       */
+
+      const improvement =
+        item.weeklyPointsGained||0;
+
+
+      if(
+        !best ||
+        improvement>
+        best.improvement
+      ){
+
+        best={
+          item:item,
+          improvement:improvement
+        };
+
+      }
+
+    }
+  );
+
+
+  if(
+    best &&
+    best.improvement>0
+  ){
+
+    ensureAchievements(
+      best.item
+    );
+
+
+    best.item.achievements
+      .throneIsMine=true;
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER ACHIEVEMENTS
+   ========================================================= */
+
 function renderAchievements(){
 
-  const list=
+  updateAchievements();
+
+
+  const list =
     $("achievementList");
 
   list.innerHTML="";
@@ -4143,82 +4555,91 @@ function renderAchievements(){
   achievementDefinitions.forEach(
     achievement => {
 
-      const value=
-        Math.min(
-          achievement.goal,
-          achievement.value()
+      const unlockedItems =
+        state.items.filter(
+          item => {
+
+            ensureAchievements(
+              item
+            );
+
+            return !!item.achievements[
+              achievement.id
+            ];
+
+          }
         );
 
 
-      const percentage=
-        Math.min(
-          100,
-          value/
-          achievement.goal*
-          100
-        );
+      const unlocked =
+        unlockedItems.length>0;
 
 
-      const unlocked=
-        value>=
-        achievement.goal;
-
-
-      const box=
+      const box =
         document.createElement(
           "div"
         );
 
-      box.className=
+
+      box.className =
         "achievement "+
         (
           unlocked
             ? "unlocked"
-            : ""
+            : "locked"
         );
 
 
       box.innerHTML=`
 
-        <div class="achievement-title">
+        <div class="achievement-icon">
 
           ${achievement.icon}
 
-          ${achievement.name}
+        </div>
 
-          ${unlocked ? " ✓":""}
+        <div class="achievement-content">
+
+          <div class="achievement-title">
+
+            ${achievement.name}
+
+          </div>
+
+          <div class="achievement-description">
+
+            ${achievement.description}
+
+          </div>
+
+          <div class="achievement-status">
+
+            ${
+              unlocked
+                ? "✓ Unlocked by "+
+                  unlockedItems.length+
+                  " Softoy"+
+                  (
+                    unlockedItems.length===1
+                      ? ""
+                      : "s"
+                  )
+                : "🔒 Not unlocked yet"
+            }
+
+          </div>
 
         </div>
 
-        <div class="achievement-description">
-
-          ${achievement.description}
-
-        </div>
-
-        <div class="progress-bar">
-
-          <div
-            class="progress-fill"
-            style="width:${percentage}%"
-          ></div>
-
-        </div>
-
-        <div
-          style="
-            margin-top:5px;
-            font-size:11px;
-            font-weight:850;
-            color:#667085
-          "
-        >
-
-          ${value}
-          /
-          ${achievement.goal}
-
-        </div>
+        ${
+          unlocked
+            ? `
+              <div class="achievement-check">
+                ✓
+              </div>
+            `
+            : ""
+        }
 
       `;
 
@@ -4231,9 +4652,7 @@ function renderAchievements(){
   );
 
 }
-
-
-/* =========================================================
+  /* =========================================================
    COLOSSEUM
    ========================================================= */
 
@@ -4810,6 +5229,7 @@ function startBattle(){
 
       finishBattle(
         winner,
+        loser,
         points
       );
 
@@ -4826,8 +5246,13 @@ function startBattle(){
 
 function finishBattle(
   winner,
+  loser,
   points
-){
+){  
+  awardUnexpectedAchievement(
+    winner,
+    loser
+  );
 
   winner.points=
     (winner.points||0)+
@@ -4843,7 +5268,8 @@ function finishBattle(
     (winner.colosseumStreak||0)+
     1;
 
-
+    loser.colosseumStreak=0;
+  
   state.colosseum.wins[
     winner.id
   ]=
